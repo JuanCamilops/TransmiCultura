@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TransmiCultura!</title>
+  <style>
+    :root {
+      --rojo-transmi: #d50000;
+      --amarillo-transmi: #ffeb3b;
+      --gris-suave: #f4f4f4;
+      --blanco: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--gris-suave);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: var(--rojo-transmi);
+      color: var(--blanco);
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    footer {
+      background-color: var(--amarillo-transmi);
+      color: #333;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      margin-top: auto;
+    }
+
+    .quiz-container {
+      background-color: var(--blanco);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      margin: 40px auto;
+      display: none;
+    }
+
+    .quiz-container img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .option {
+      background-color: var(--amarillo-transmi);
+      border: none;
+      padding: 12px;
+      width: 100%;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.3s, transform 0.2s;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .option:hover {
+      background-color: #fdd835;
+      transform: scale(1.03);
+    }
+
+    .option.correct {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .option.incorrect {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--rojo-transmi);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeOut 1s ease 3s forwards;
+    }
+
+    .loader img {
+      width: 150px;
+      height: auto;
+      animation: zoomInOut 2s infinite ease-in-out, fadeInLogo 2s ease-in;
+    }
+
+    @keyframes zoomInOut {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.2);
+      }
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    @keyframes fadeInLogo {
+      from {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        font-size: 20px;
+        padding: 15px;
+      }
+      .quiz-container {
+        padding: 15px;
+      }
+      .option {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loader">
+    <audio id="startupSound" autoplay>
+      <source src="intro.mp3" type="audio/mp3">
+    </audio>
+    <img src="transmi.png" alt="Logo TransMilenio">
+  </div>
+
+  <header>
+    TransmiCultura!
+  </header>
+
+  <div class="quiz-container" id="quiz">
+    <img src="imagen.png" alt="Pregunta">
+    <h2 id="question-text"></h2>
+    <div id="options"></div>
+    <div id="score" style="margin-top: 20px; font-weight: bold;"></div>
+  </div>
+
+  <footer>
+    © 2025 TransmiCultura | Cultura ciudadana en movimiento
+  </footer>
+
+  <script>
+    const questions = [
+  {
+    text: "¿En qué año comenzó a funcionar el sistema TransMilenio en Bogotá?",
+    options: ["1999", "2002", "2000", "1995"],
+    answer: "2000"
+  },
+  {
+    text: "¿Qué debes hacer si ves a alguien colándose en una estación de TransMilenio?",
+    options: ["Gritarle desde lejos", "Reportarlo al personal de seguridad o en la línea de atención", "Grabarlo y subirlo a redes sociales", "No hacer nada"],
+    answer: "Reportarlo al personal de seguridad o en la línea de atención"
+  },
+  {
+    text: "¿Cuál es el color principal de los buses troncales de TransMilenio?",
+    options: ["Azul", "Rojo", "Verde", "Amarillo"],
+    answer: "Rojo"
+  },
+  {
+    text: "¿Qué es lo correcto si alguien necesita ayuda para subir al bus con silla de ruedas?",
+    options: ["Ignorarlo, el conductor debe encargarse", "Preguntarle si necesita ayuda y facilitarle el acceso", "Tomarlo por sorpresa y cargarlo", "Decirle que espere al siguiente bus"],
+    answer: "Preguntarle si necesita ayuda y facilitarle el acceso"
+  },
+  {
+    text: "¿Cuál es el objetivo principal del programa “Cultura TransMilenio”?",
+    options: ["Aumentar los pasajes", "Fomentar el respeto y la convivencia entre los usuarios", "Controlar la velocidad de los buses", "Promover el uso de taxis"],
+    answer: "Fomentar el respeto y la convivencia entre los usuarios"
+  },
+  {
+    text: "¿Qué significa que un bus esté en “ruta fácil”?",
+    options: ["Que no cobra pasaje", "Que tiene paradas más frecuentes y rutas alimentadoras", "Que va más rápido que los demás", "Que solo se usa los fines de semana"],
+    answer: "Que tiene paradas más frecuentes y rutas alimentadoras"
+  },
+  {
+    text: "¿Qué se debe hacer si ves un paquete sospechoso en el sistema?",
+    options: ["Avisar de inmediato al personal de seguridad o conductor", "Revisarlo tú mismo", "Ignorarlo y seguir caminando", "Llamar a tus amigos y tomarte una selfie"],
+    answer: "Avisar de inmediato al personal de seguridad o conductor"
+  },
+  {
+    text: "¿Cómo puedes evitar el acoso en TransMilenio?",
+    options: ["Golpear al agresor directamente", "Denunciarlo al personal, usar botón de pánico y pedir ayuda a otros pasajeros", "Cambiarte de bus sin decir nada", "Esperar a que alguien más diga algo"],
+    answer: "Denunciarlo al personal, usar botón de pánico y pedir ayuda a otros pasajeros"
+  },
+  {
+    text: "¿Cuál de estas acciones contribuye a una mejor convivencia en TransMilenio?",
+    options: ["Ceder el puesto a personas con discapacidad o embarazadas", "Escuchar música a todo volumen", "Comer dentro del bus", "Patear las puertas cuando no abren"],
+    answer: "Ceder el puesto a personas con discapacidad o embarazadas"
+  },
+  {
+    text: "Si alguien se desmaya dentro del bus, ¿qué debes hacer?",
+    options: ["Gritar y correr", "Avisar al conductor y pedir ayuda médica", "Sacarlo del bus sin preguntar", "Tomarle fotos"],
+    answer: "Avisar al conductor y pedir ayuda médica"
+  }
+];
+
+
+    let current = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadQuestion() {
+      answered = false;
+      const q = questions[current];
+      document.getElementById('question-text').textContent = q.text;
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+      document.getElementById('score').textContent = `Puntaje: ${score} / ${questions.length}`;
+
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(btn, opt === q.answer);
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(button, isCorrect) {
+      if (answered) return;
+      answered = true;
+
+      const buttons = document.querySelectorAll('.option');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === questions[current].answer) {
+          btn.classList.add('correct');
+        } else if (btn === button && !isCorrect) {
+          btn.classList.add('incorrect');
+        }
+      });
+
+      if (isCorrect) score++;
+
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          showFinalScore();
+        }
+      }, 2000);
+    }
+
+    function showFinalScore() {
+      const quiz = document.getElementById('quiz');
+      quiz.innerHTML = `<h2>¡Has terminado!</h2><p>Puntaje final: ${score} de ${questions.length}</p>`;
+    }
+
+    window.onload = () => {
+      setTimeout(() => {
+        document.querySelector('.loader').style.display = 'none';
+        document.getElementById('quiz').style.display = 'block';
+        document.getElementById('startupSound').play();
+        loadQuestion();
+      }, 4000);
+    };
+  </script>
+</body>
+</html>
